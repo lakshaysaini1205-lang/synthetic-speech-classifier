@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Forensics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="background-lines-container">
+        <svg id="background-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"></svg>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <header class="hero-section">
+                <h1 class="title">Synthetic Speech Classifier</h1>
+                <p class="subtitle">Deep Learning Audio Forensics & Analysis</p>
+            </header>
+
+            <div id="drop-zone" class="glass-card aceternity-box">
+                <input type="file" id="audio-file" accept=".wav,.mp3" hidden>
+                <div class="grid-pattern-mask"><div class="grid-pattern"></div></div>
+
+                <div id="upload-prompt" class="content-wrapper flex-col-center">
+                    <p class="main-text">Upload Forensics File</p>
+                    <p class="sub-text">Drag or drop your audio here or click to browse</p>
+                    <div class="icon-card-wrapper">
+                        <div class="secondary-card"></div>
+                        <div id="floating-card" class="floating-card">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="file-display" class="content-wrapper hidden w-full">
+                    <div class="selected-file-card glass-inner-card">
+                        <div class="file-header">
+                            <p id="file-name" class="file-name text-truncate"></p>
+                            <p id="file-size" class="file-badge"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button type="button" id="mic-btn" class="analyze-btn" style="background: #18181b; color: white; border: 1px solid var(--glass-border); flex: 0.4; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg id="mic-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+                    Capture
+                </button>
+                <button type="button" id="analyze-btn" class="analyze-btn" style="flex: 1;">Initialize Neural Scan</button>
+            </div>
+            <p id="mic-timer" class="hidden" style="color: #f87171; font-size: 0.85rem; margin-bottom: 10px; font-weight: 600;">RECORDING: 0.0s / 2.0s</p>
+
+            <div id="loading" class="hidden" style="margin-top: 30px;">
+                <div class="loader-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lightning-loader">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path class="lightning-path" d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11" />
+                    </svg>
+                </div>
+                <p class="loading-text">Extracting Spectral Signatures...</p>
+            </div>
+
+            <div id="result-section" class="glass-card result-card hidden">
+                <h2>Forensics Report</h2>
+                <p id="case-id-display" style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px;"></p>
+                
+                <div class="spectrogram-container">
+                    <p class="graph-title">Mel-Frequency Spectrogram</p>
+                    <img id="spectrogram-img" src="" alt="Spectrogram Graph" />
+                </div>
+
+                <h1 id="prediction-text"></h1>
+                <p id="confidence-text" class="stat-highlight"></p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">⏱ <strong>Latency:</strong> <span id="stat-latency"></span></div>
+                    <div class="stat-item">💾 <strong>Storage:</strong> <span id="stat-storage"></span></div>
+                    <div class="stat-item full-width">🧠 <strong>Logic:</strong> <p id="stat-interp"></p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-dock">
+        <button class="dock-item" title="Reset Scan" onclick="location.reload()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+        <button class="dock-item" title="GitHub Repo" onclick="window.open('https://github.com', '_blank')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+        </button>
+        <button class="dock-item" title="Export Bundle" onclick="downloadForensicsBundle()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+    </div>
+
+    <script>
+        let currentReportId = "";
+
+        // 1. Multi-Directional Background Lines
+        const paths = ["M -100 300 C 300 100, 800 800, 1540 400", "M 1540 700 C 1000 900, 400 200, -100 600", "M -100 500 C 500 300, 900 700, 1540 300", "M 1540 800 C 800 800, 600 100, -100 500"];
+        const colors = ["#46A5CA", "#8C2F2F", "#4FAE4D", "#D6590C"];
+        const svg = document.getElementById('background-svg');
+        paths.forEach((d, idx) => {
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", d); path.setAttribute("stroke", colors[idx % colors.length]);
+            path.setAttribute("stroke-width", "5"); path.setAttribute("fill", "none");
+            path.style.opacity = "0.6"; svg.appendChild(path);
+            const length = path.getTotalLength();
+            path.style.strokeDasharray = `100 ${length}`; path.style.strokeDashoffset = length;
+            path.style.animation = `drawPath 12s linear infinite`; path.style.animationDelay = `-${Math.random() * 12}s`; 
+        });
+
+        // 2. Upload UI
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('audio-file');
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = updateUI;
+        function updateUI() {
+            if (fileInput.files.length > 0) {
+                document.getElementById('upload-prompt').classList.add('hidden');
+                document.getElementById('file-display').classList.remove('hidden');
+                document.getElementById('file-name').textContent = fileInput.files[0].name;
+            }
+        }
+
+        // 3. Microphone Logic (Fixed for Format Compatibility)
+        let mediaRecorder; let audioChunks = [];
+        const micBtn = document.getElementById('mic-btn');
+        const micTimer = document.getElementById('mic-timer');
+
+        micBtn.onclick = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' }); 
+                    const file = new File([blob], "mic_capture.webm", { type: "audio/webm" });
+                    const container = new DataTransfer(); container.items.add(file);
+                    fileInput.files = container.files; updateUI();
+                };
+                mediaRecorder.start();
+                micBtn.style.borderColor = "#f87171"; micBtn.style.color = "#f87171";
+                micTimer.classList.remove('hidden');
+                let time = 0; const intv = setInterval(() => {
+                    time += 0.1; micTimer.textContent = `RECORDING: ${time.toFixed(1)}s / 2.0s`;
+                    if(time >= 2.0) { 
+                        clearInterval(intv); mediaRecorder.stop(); 
+                        micTimer.classList.add('hidden'); micBtn.style.borderColor = "rgba(255, 255, 255, 0.1)"; micBtn.style.color = "white"; 
+                    }
+                }, 100);
+            } catch (err) { alert("Mic access denied: " + err); }
+        };
+
+        // 4. Neural Scan Logic
+        document.getElementById('analyze-btn').onclick = async () => {
+            if(!fileInput.files[0]) return alert("Upload or capture audio first.");
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('result-section').classList.add('hidden');
+            const fd = new FormData(); fd.append('audio_file', fileInput.files[0]);
+            try {
+                const res = await fetch('/analyze', { method: 'POST', body: fd });
+                const data = await res.json();
+                document.getElementById('loading').classList.add('hidden');
+                if (data.status === "success") {
+                    document.getElementById('result-section').classList.remove('hidden');
+                    currentReportId = data.report_id;
+                    document.getElementById('case-id-display').textContent = `ID: ${data.report_id}`;
+                    document.getElementById('spectrogram-img').src = data.spectrogram;
+                    document.getElementById('prediction-text').textContent = data.result;
+                    document.getElementById('prediction-text').className = data.result.includes("Real") ? "text-success" : "text-danger";
+                    document.getElementById('confidence-text').textContent = `Confidence: ${data.confidence}`;
+                    document.getElementById('stat-latency').textContent = data.latency;
+                    document.getElementById('stat-storage').textContent = data.storage;
+                    document.getElementById('stat-interp').textContent = data.interpretation;
+                } else { alert("Scan Error: " + data.message); }
+            } catch (e) { document.getElementById('loading').classList.add('hidden'); alert("Server communication error."); }
+        };
+
+        // 5. Dual Export Engine
+        async function downloadForensicsBundle() {
+            if(!currentReportId) return alert("Run analysis first.");
+            // Action A: Download the raw audio file
+            const audioUrl = URL.createObjectURL(fileInput.files[0]);
+            const aLink = document.createElement('a'); aLink.href = audioUrl;
+            aLink.download = `${currentReportId}_Evidence.webm`; aLink.click();
+            // Action B: Download the results card as a report image
+            html2canvas(document.getElementById('result-section'), { backgroundColor: "#09090b", scale: 2 }).then(canvas => {
+                const iLink = document.createElement('a'); iLink.href = canvas.toDataURL("image/png");
+                iLink.download = `${currentReportId}_Report.png`; iLink.click();
+            });
+        }
+    </script>
+</body>
+</html>
