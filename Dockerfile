@@ -1,23 +1,22 @@
-# 1. Use Python 3.11 for maximum AI library compatibility
+# 1. Use a stable Python version
 FROM python:3.11-slim
 
-# 2. Install FFmpeg AND libsndfile (Required for librosa to work)
+# 2. Install audio and build tools
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libsndfile1 \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Set the directory inside the container
 WORKDIR /app
 
-# 4. Copy and install requirements
+# 3. Copy and install requirements
 COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. Copy the rest of your code
+# 4. Copy your code and model (145KB)
 COPY . .
 
-# 6. Start the server using the PORT Render provides
-CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "app:app"]
+# 5. The Fix: Run in Shell Form so $PORT works!
+CMD gunicorn --bind 0.0.0.0:$PORT app:app
