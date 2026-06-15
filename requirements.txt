@@ -1,8 +1,8 @@
-flask
-numpy
-librosa
-matplotlib
-tensorflow
-keras
-gunicorn
-soundfile
+Flask==3.0.3
+numpy==1.26.4
+librosa==0.10.2
+matplotlib==3.8.4
+tensorflow==2.16.1
+keras==3.3.3
+gunicorn==22.0.0
+soundfile==0.12.1
