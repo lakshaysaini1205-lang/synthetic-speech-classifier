@@ -1,0 +1,29 @@
+# Virtual environment (VERY IMPORTANT)
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Uploaded audio files (temporary)
+uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code settings (optional)
+.vscode/
+
+# Jupyter / temp files
+.ipynb_checkpoints/
+
+# Environment variables (if you add API keys later)
+.env
+
+# TensorFlow/Keras cache (optional)
+.keras/
+
+# Log files
+*.log
