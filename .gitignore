@@ -1,29 +1,20 @@
-# Virtual environment (VERY IMPORTANT)
+# Virtual Environments
 .venv/
+nv/
 
-# Python cache files
+# Python Cache & Artifacts
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 
-# Uploaded audio files (temporary)
-uploads/
+# Heavy Original Model File
+best_deepfake_model.h5
 
-# OS files
+# User Uploads (Ignores uploaded files but keeps the folder)
+uploads/*
+!uploads/.gitkeep
+
+# Operating System Files
 .DS_Store
 Thumbs.db
-
-# VS Code settings (optional)
-.vscode/
-
-# Jupyter / temp files
-.ipynb_checkpoints/
-
-# Environment variables (if you add API keys later)
-.env
-
-# TensorFlow/Keras cache (optional)
-.keras/
-
-# Log files
-*.log
